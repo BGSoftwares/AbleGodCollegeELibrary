@@ -1,8 +1,11 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from books.models import Book
 from categories.models import Category
+import tempfile
 
 User = get_user_model()
 
@@ -78,6 +81,37 @@ class ResourceListTests(TestCase):
         self.past_paper.refresh_from_db()
         self.assertEqual(self.past_paper.title, 'Updated Algebra Past Paper 2025')
 
+    def test_teacher_can_upload_a_resource(self):
+        teacher = User.objects.create_user(
+            username="teacher-upload",
+            email="teacher-upload@example.com",
+            password="password123",
+            is_teacher=True,
+        )
+        self.client.login(username="teacher-upload", password="password123")
+        uploaded_file = SimpleUploadedFile(
+            "revision-notes.pdf",
+            b"sample resource file",
+            content_type="application/pdf",
+        )
+
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                response = self.client.post(
+                    reverse("add-book"),
+                    {
+                        "title": "Revision Notes",
+                        "isbn": "999-888-777",
+                        "content_type": "learning_material",
+                        "is_available": True,
+                        "file": uploaded_file,
+                    },
+                )
+
+                self.assertRedirects(response, reverse("manage-resources"))
+                book = Book.objects.get(title="Revision Notes")
+                self.assertTrue(book.file.name.endswith("revision-notes.pdf"))
+
 
 
 
@@ -96,4 +130,7 @@ class ResourceListTests(TestCase):
         self.assertContains(response, 'BG Devops')
         self.assertContains(response, '0784654328')
 
+    def test_resource_page_dashboard_link(self):
+        response = self.client.get(reverse('past-exam-papers'))
 
+        self.assertContains(response, f'href="{reverse("dashboard")}"')
