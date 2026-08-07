@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Header Banner -->
+        <div class="hero-card p-4 p-md-5 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+                <div>
+                    <span class="badge-accent mb-2">Management Portal</span>
+                    <h1 class="display-6 fw-bold mb-2">Resource Management Center</h1>
+                    <p class="lead text-secondary mb-0">Full administrative control for Admins, Teachers, and Librarians to create, edit, delete, and organize all academic materials.</p>
+                </div>
+                <div>
+                    <a href="{% url 'add-book' %}" class="btn btn-primary btn-lg shadow-sm">
+                        Upload New Resource
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 bg-surface shadow-sm p-3 h-100">
+                    <div class="text-secondary small fw-bold text-uppercase">Total Items</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ total_count }}</div>
+                    <div class="small text-muted">All uploaded records</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 bg-surface shadow-sm p-3 h-100">
+                    <div class="text-secondary small fw-bold text-uppercase">Past Exam Papers</div>
+                    <div class="fs-2 fw-bold text-primary-accent mt-1">{{ past_exam_count }}</div>
+                    <div class="small text-muted">Exam & test papers</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 bg-surface shadow-sm p-3 h-100">
+                    <div class="text-secondary small fw-bold text-uppercase">Textbooks & Notes</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ textbook_count }}</div>
+                    <div class="small text-muted">Curriculum books</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 bg-surface shadow-sm p-3 h-100">
+                    <div class="text-secondary small fw-bold text-uppercase">Learning & Other</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ learning_material_count|add:resource_count }}</div>
+                    <div class="small text-muted">Guides & worksheets</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-lg-7">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="?type=all{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">All Resources</a>
+                        <a href="?type=past_exam_paper{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'past_exam_paper' %}btn-primary{% else %}btn-outline-primary{% endif %}">Past Exam Papers</a>
+                        <a href="?type=textbook{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'textbook' %}btn-primary{% else %}btn-outline-primary{% endif %}">Textbooks & Notes</a>
+                        <a href="?type=learning_material{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'learning_material' %}btn-primary{% else %}btn-outline-primary{% endif %}">Learning Materials</a>
+                        <a href="?type=resource{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'resource' %}btn-primary{% else %}btn-outline-primary{% endif %}">Other Resources</a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <input type="hidden" name="type" value="{{ filter_type }}">
+                        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by title, ISBN, author, description...">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        {% if search_query %}
+                            <a href="?type={{ filter_type }}" class="btn btn-outline-secondary">Clear</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resources Data Table -->
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Managed Resources ({{ books|length }})</h5>
+                <span class="text-muted small">Showing filter: <strong>{{ filter_type|title }}</strong></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Resource Title</th>
+                            <th>Category Type</th>
+                            <th>Authors / Publisher</th>
+                            <th>Categories</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ book.title }}</div>
+                                    <div class="small text-muted">ISBN: {{ book.isbn|default:"N/A" }} | Year: {{ book.publication_year|default:"N/A" }}</div>
+                                </td>
+                                <td>
+                                    {% if book.content_type == 'past_exam_paper' %}
+                                        <span class="badge bg-primary text-white">Past Exam Paper</span>
+                                    {% elif book.content_type == 'textbook' %}
+                                        <span class="badge bg-success text-white">Textbook</span>
+                                    {% elif book.content_type == 'learning_material' %}
+                                        <span class="badge bg-info text-dark">Learning Material</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary text-white">Other Resource</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="small fw-semibold">
+                                        {% for author in book.authors.all %}
+                                            {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            No author specified
+                                        {% endfor %}
+                                    </div>
+                                    <div class="small text-muted">{{ book.publisher.name|default:"No publisher" }}</div>
+                                </td>
+                                <td>
+                                    {% for category in book.categories.all %}
+                                        <span class="badge bg-light text-dark me-1 mb-1">{{ category.name }}</span>
+                                    {% empty %}
+                                        <span class="small text-muted">-</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if book.is_available %}
+                                        <span class="badge bg-success text-white">Available</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">On Loan / Reserved</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        {% if book.file %}
+                                            <a href="{% url 'view-book' book.pk %}" target="_blank" class="btn btn-outline-secondary" title="View File">View</a>
+                                            <a href="{% url 'download-book' book.pk %}" class="btn btn-outline-secondary" title="Download">Download</a>
+                                        {% endif %}
+                                        <a href="{% url 'edit-book' book.pk %}" class="btn btn-outline-primary" title="Edit Resource">
+                                            Edit
+                                        </a>
+                                        <a href="{% url 'delete-book' book.pk %}" class="btn btn-outline-danger" title="Delete Resource">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <p class="mb-2">No resources found matching your search and filter criteria.</p>
+                                    <a href="{% url 'add-book' %}" class="btn btn-sm btn-primary">Upload Resource Now</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

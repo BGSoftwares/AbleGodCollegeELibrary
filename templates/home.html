@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-7">
+                <div class="hero-card p-5">
+                    <span class="badge-accent mb-3">Able God August 2026</span>
+                    <h1 class="display-5 fw-bold">Able God College Digital Library</h1>
+                    <p class="lead mt-3">A modern digital library for students, teachers, and academic excellence. Browse textbooks, past papers, and study resources with a clean, fast experience.</p>
+                    <form method="get" action="{% url 'search-books' %}" class="mt-4 hero-search">
+                        <div class="input-group shadow-sm">
+                            <input type="text" name="q" class="form-control" placeholder="Search books, ISBN, or author">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Featured Resources</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for book in featured_books %}
+                                <li class="list-group-item py-3">
+                                    {% if book.file %}
+                                        <a href="{% url 'view-book' book.pk %}" target="_blank" class="book-link">{{ book.title }}</a>
+                                        <small class="text-secondary ms-2">· <a href="{% url 'download-book' book.pk %}">Download</a></small>
+                                    {% else %}
+                                        {{ book.title }}
+                                    {% endif %}
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">No featured books yet.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+            <div>
+                <h2>Find Resources by Subject</h2>
+                <p class="text-secondary">Click a subject card to explore available textbooks, notes, and past papers.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% if categories %}
+                {% for category in categories %}
+                    <div class="col-md-4">
+                        <a href="{% url 'category-resources' category.pk %}" class="text-decoration-none">
+                            <div class="subject-card h-100 p-4">
+                                <div class="subject-icon {{ category.color_class }}">{{ category.name|slice:":1"|upper }}</div>
+                                <h5 class="mt-3">{{ category.name }}</h5>
+                                <p class="text-secondary">{{ category.description|default:"Browse resources for this subject." }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card p-4">
+                        <p class="mb-0 text-secondary">No categories are available yet. Please add subjects and categories in the admin panel.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+            <div>
+                <h2>Popular Books</h2>
+                <p class="text-secondary">Explore the latest library additions and most-used study materials.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-primary align-self-start">View Dashboard</a>
+        </div>
+        <div class="row g-4">
+            {% for book in featured_books %}
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-secondary">{{ book.description|truncatechars:120 }}</p>
+                            <p class="mb-1"><strong>ISBN:</strong> {{ book.isbn }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

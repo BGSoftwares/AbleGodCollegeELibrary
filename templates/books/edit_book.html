@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="hero-card p-4 p-md-5 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge-accent">Management Portal</span>
+                        <a href="{% url 'manage-resources' %}" class="btn btn-sm btn-outline-primary">Back to Manager</a>
+                    </div>
+                    <h2 class="display-6 fw-bold">Edit Resource</h2>
+                    <p class="text-secondary mb-0">Update metadata, subject tags, authors, category type, or uploaded files for <strong>{{ book.title }}</strong>.</p>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">Resource Title *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.content_type.id_for_label }}" class="form-label fw-bold">Resource Category Type *</label>
+                                {{ form.content_type }}
+                                {% if form.content_type.errors %}<div class="text-danger small">{{ form.content_type.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.isbn.id_for_label }}" class="form-label fw-bold">ISBN / Document Code</label>
+                                {{ form.isbn }}
+                                {% if form.isbn.errors %}<div class="text-danger small">{{ form.isbn.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.authors.id_for_label }}" class="form-label fw-bold">Author(s)</label>
+                                {{ form.authors }}
+                                <div class="form-text small">Hold Ctrl (or Cmd) to select multiple authors.</div>
+                                {% if form.authors.errors %}<div class="text-danger small">{{ form.authors.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.categories.id_for_label }}" class="form-label fw-bold">Categories / Subjects</label>
+                                {{ form.categories }}
+                                <div class="form-text small">Hold Ctrl (or Cmd) to select multiple categories.</div>
+                                {% if form.categories.errors %}<div class="text-danger small">{{ form.categories.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.publisher.id_for_label }}" class="form-label fw-bold">Publisher</label>
+                                {{ form.publisher }}
+                                {% if form.publisher.errors %}<div class="text-danger small">{{ form.publisher.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.departments.id_for_label }}" class="form-label fw-bold">Department(s)</label>
+                                {{ form.departments }}
+                                {% if form.departments.errors %}<div class="text-danger small">{{ form.departments.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="{{ form.publication_year.id_for_label }}" class="form-label fw-bold">Year</label>
+                                {{ form.publication_year }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.edition.id_for_label }}" class="form-label fw-bold">Edition</label>
+                                {{ form.edition }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.language.id_for_label }}" class="form-label fw-bold">Language</label>
+                                {{ form.language }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.file.id_for_label }}" class="form-label fw-bold">Upload Resource File (PDF/Doc/Zip)</label>
+                                {{ form.file }}
+                                {% if book.file %}
+                                    <div class="form-text mt-1 text-success">Current file: <a href="{% url 'view-book' book.pk %}" target="_blank">{{ book.file.name }}</a></div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.cover_image.id_for_label }}" class="form-label fw-bold">Cover Image</label>
+                                {{ form.cover_image }}
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check mt-2">
+                                    {{ form.is_available }}
+                                    <label class="form-check-label fw-bold" for="{{ form.is_available.id_for_label }}">
+                                        Available for borrowing / public download
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a href="{% url 'manage-resources' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <div>
+                                <a href="{% url 'delete-book' book.pk %}" class="btn btn-outline-danger me-2">Delete Resource</a>
+                                <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

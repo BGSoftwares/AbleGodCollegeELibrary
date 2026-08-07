@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="card p-5 text-center">
+            <span class="badge-accent mb-3">Success</span>
+            <h2 class="mb-3">Logged out</h2>
+            <p class="text-secondary mb-4">You have successfully logged out. Thank you for visiting Able God College Digital Library.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary">Login again</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

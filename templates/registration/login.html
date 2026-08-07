@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Google Font for Premium Typography -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .login-container-wrapper {
+        font-family: 'Outfit', sans-serif;
+        background: radial-gradient(circle at top right, rgba(255, 209, 102, 0.15), transparent 35%),
+                    radial-gradient(circle at bottom left, rgba(255, 59, 138, 0.1), transparent 30%);
+        min-height: calc(100vh - 56px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+    }
+    
+    .login-card-container {
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 36px;
+        box-shadow: 0 2rem 4rem rgba(11, 42, 74, 0.12), 0 0 0 1px rgba(11, 42, 74, 0.05);
+        backdrop-filter: blur(24px);
+        overflow: hidden;
+        max-width: 1050px;
+        width: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-card-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2.4rem 4.5rem rgba(11, 42, 74, 0.16);
+    }
+    
+    .login-art-panel {
+        background: linear-gradient(135deg, rgba(11, 42, 74, 0.97) 0%, rgba(20, 60, 110, 0.92) 50%, rgba(255, 59, 138, 0.85) 100%);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 3.5rem 3rem;
+        color: #ffffff;
+    }
+
+    .school-logo-frame {
+        background: #ffffff;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        border-radius: 28px;
+        padding: 1.5rem;
+        box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(11, 42, 74, 0.1);
+        text-align: center;
+        max-width: 280px;
+        margin: 0 auto 2rem auto;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .school-logo-frame:hover {
+        transform: scale(1.03);
+        box-shadow: 0 1.8rem 3.5rem rgba(0, 0, 0, 0.3);
+    }
+
+    .school-logo-img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: contain;
+        filter: drop-shadow(0 6px 12px rgba(11, 42, 74, 0.15));
+    }
+    
+    .art-title {
+        font-weight: 700;
+        font-size: 2.1rem;
+        line-height: 1.25;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+    
+    .art-subtitle {
+        font-size: 1.02rem;
+        font-weight: 300;
+        opacity: 0.92;
+        line-height: 1.6;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-form-panel {
+        padding: 4rem 3.5rem;
+    }
+    
+    .login-header-logo {
+        display: inline-block;
+        font-weight: 700;
+        color: var(--deep-navy);
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+    
+    .login-header-logo span {
+        color: var(--primary-pink);
+    }
+    
+    .login-subtitle {
+        color: rgba(44, 58, 74, 0.65);
+        font-size: 0.95rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-group-custom {
+        position: relative;
+        margin-bottom: 1.6rem;
+    }
+    
+    .form-group-custom label {
+        display: block;
+        font-weight: 600;
+        color: var(--deep-navy);
+        font-size: 0.88rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-input {
+        border-radius: 14px !important;
+        border: 1.5px solid rgba(11, 42, 74, 0.12) !important;
+        padding: 0.85rem 1.1rem !important;
+        font-size: 0.98rem !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+    }
+    
+    .login-input:focus {
+        border-color: var(--primary-pink) !important;
+        box-shadow: 0 0 0 4px rgba(255, 59, 138, 0.12) !important;
+        background-color: #ffffff !important;
+        outline: none;
+    }
+
+    .btn-login-submit {
+        background: linear-gradient(135deg, var(--primary-pink) 0%, #ff1f6a 100%);
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.9rem 2rem;
+        border-radius: 14px;
+        width: 100%;
+        border: none;
+        box-shadow: 0 8px 20px rgba(255, 59, 138, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        margin-top: 1rem;
+    }
+    
+    .btn-login-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(255, 59, 138, 0.35);
+        filter: brightness(1.05);
+        color: #ffffff;
+    }
+    
+    .btn-login-submit:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px rgba(255, 59, 138, 0.2);
+    }
+
+    .developer-credit-section {
+        border-color: rgba(11, 42, 74, 0.08) !important;
+    }
+
+    .developer-badge {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, rgba(11, 42, 74, 0.05), rgba(255, 59, 138, 0.08));
+        border: 1px solid rgba(11, 42, 74, 0.1);
+        padding: 0.65rem 1.25rem;
+        border-radius: 50px;
+        font-size: 0.88rem;
+        color: var(--deep-navy);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .developer-badge strong {
+        color: var(--primary-pink);
+    }
+
+    .dev-phone {
+        background: var(--deep-navy);
+        color: #ffffff !important;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-decoration: none;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .dev-phone:hover {
+        background: var(--primary-pink);
+        color: #ffffff !important;
+        transform: translateY(-1px);
+    }
+
+    
+    @media (max-width: 991px) {
+        .login-art-panel {
+            min-height: 320px;
+            padding: 2.5rem 2rem;
+            justify-content: center;
+        }
+        .login-form-panel {
+            padding: 3rem 2rem;
+        }
+        .art-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="login-container-wrapper">
+    <div class="login-card-container">
+        <div class="row g-0">
+            <!-- Left Panel: Graphic & Content -->
+            <div class="col-lg-6 login-art-panel">
+                <div class="text-center w-100 my-auto">
+                    <div class="school-logo-frame">
+                        <img src="{% static 'images/school_logo.png' %}" alt="Able God College Crest" class="school-logo-img">
+                    </div>
+                    <h2 class="art-title">Gateway to Infinite Knowledge</h2>
+                    <p class="art-subtitle mb-0">
+                        Access and download curriculum textbooks, teacher notes, past examination papers, and supplementary resources to support your academic journey.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-top border-light border-opacity-25 small opacity-75 text-center">
+                    Designed & Infrastructure by <strong class="text-white">BG Devops (@0784654328)</strong>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Form -->
+            <div class="col-lg-6 login-form-panel d-flex flex-column justify-content-center">
+                <div class="login-header-logo">AbleGod <span>Library</span></div>
+                <div class="login-subtitle">Sign in to manage and download your resources.</div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-danger mb-4" style="border-radius: 12px; font-size: 0.9rem;">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Username Field -->
+                    <div class="form-group-custom">
+                        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger mt-1 small">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-group-custom">
+                        <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger mt-1 small">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login-submit">Sign In</button>
+                </form>
+
+                <!-- Designer Credit Section -->
+                <div class="developer-credit-section mt-4 pt-3 border-top text-center">
+                    <div class="developer-badge">
+                        <span>Designed by</span>
+                        <strong>BG Devops</strong>
+                        <a href="tel:0784654328" class="dev-phone">📞 0784654328</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

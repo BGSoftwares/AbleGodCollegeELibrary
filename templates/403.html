@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm p-4 text-center">
+                <h1 class="display-4 mb-3">Access Denied</h1>
+                <p class="lead text-secondary mb-4">You do not have permission to access this page.</p>
+                <p class="mb-4">If you are a staff member, please log in with the appropriate account. If you believe this is an error, contact the site administrator.</p>
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Staff Login</a>
+                <a href="/" class="btn btn-outline-secondary ms-2">Return to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="resource-page py-5 {{ page_type }}-page">
+    <div class="container">
+        <div class="resource-page-header p-4 mb-5 rounded-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4">
+                <div>
+                    <span class="badge-accent mb-3">{{ title }}</span>
+                    <h1 class="display-6 fw-bold mb-3">{{ hero_title }}</h1>
+                    <p class="lead text-secondary mb-2">{{ hero_excerpt }}</p>
+                    {% if page_description %}
+                        <p class="text-secondary mb-0">{{ page_description }}</p>
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-column align-items-start align-items-lg-end gap-2">
+                    <a href="/" class="btn btn-outline-primary">Back to Home</a>
+                    <a href="/dashboard/" class="btn btn-light">Open Dashboard</a>
+                    {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                        <a href="{% url 'manage-resources' %}" class="btn btn-primary">Manage Resources</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="resource-tabs mb-5">
+            <a href="{% url 'past-exam-papers' %}" class="resource-tab{% if page_type == 'past-exam-papers' %} active{% endif %}">Past Exam Papers</a>
+            <a href="{% url 'textbooks-notes' %}" class="resource-tab{% if page_type == 'textbooks-notes' %} active{% endif %}">Textbooks & Notes</a>
+            <a href="{% url 'learning-materials' %}" class="resource-tab{% if page_type == 'learning-materials' %} active{% endif %}">Learning Materials</a>
+            <a href="{% url 'other-resources' %}" class="resource-tab{% if page_type == 'other-resources' %} active{% endif %}">Other Resources</a>
+        </div>
+
+        <div class="resource-summary d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <p class="mb-1 text-secondary">Available resources</p>
+                <h3 class="mb-0">{{ books|length }} item{% if books|length != 1 %}s{% endif %} found</h3>
+            </div>
+            <div class="resource-flow text-secondary">Fast downloads · easy browsing · teacher-friendly</div>
+        </div>
+
+        {% if books %}
+            <div class="row g-4 resource-grid">
+                {% for book in books %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card resource-card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="resource-badge">Resource</span>
+                                    {% if book.file %}
+                                        <div class="btn-group">
+                                            <a href="{% url 'view-book' book.pk %}" target="_blank" class="btn btn-outline-primary btn-sm">View</a>
+                                            <a href="{% url 'download-book' book.pk %}" class="btn btn-primary btn-sm">Download</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if content_type_label %}
+                                    <div class="mb-3 text-uppercase small text-muted">Type: {{ content_type_label }}</div>
+                                {% endif %}
+                                <h5 class="card-title mb-3">{{ book.title }}</h5>
+                                <p class="card-text text-secondary mb-4">{{ book.description|truncatechars:120 }}</p>
+                                <div class="resource-meta mb-3">
+                                    <p class="mb-2"><strong>Publisher:</strong> {{ book.publisher.name|default:"N/A" }}</p>
+                                    <p class="mb-0"><strong>Categories:</strong>
+                                        {% for category in book.categories.all %}
+                                            <span class="resource-tag">{{ category.name }}</span>
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for category in book.categories.all %}
+                                            <span class="badge bg-light text-dark">{{ category.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                                        <div class="btn-group btn-group-sm ms-2">
+                                            <a href="{% url 'edit-book' book.pk %}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                            <a href="{% url 'delete-book' book.pk %}" class="btn btn-outline-danger" title="Delete">Delete</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card p-5 no-resources-card text-center">
+                <h4 class="mb-3">No resources found</h4>
+                <p class="text-secondary mb-4">There are no items matching this category yet. Check back later or upload new materials if you are an authorized teacher or administrator.</p>
+                <a href="/books/add/" class="btn btn-primary">Upload a study resource</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+

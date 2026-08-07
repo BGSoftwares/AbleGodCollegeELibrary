@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="hero-card p-5 mb-5">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-4 align-items-start">
+                <div>
+                    <span class="badge-accent mb-3">Dashboard</span>
+                    <h1 class="display-6 fw-bold">Able God College Digital Library</h1>
+                    <p class="lead text-secondary">Welcome to your central library dashboard. Manage books, borrow records, and upload academic materials using a clean, modern interface.</p>
+                </div>
+                <div class="text-lg-end">
+                    {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                        <a href="{% url 'manage-resources' %}" class="btn btn-primary me-2 mb-2">Management Portal</a>
+                        <a href="/books/add/" class="btn btn-outline-primary me-2 mb-2">Add Resource</a>
+                    {% endif %}
+                    <a href="/borrowings/add/" class="btn btn-outline-primary mb-2">Borrow Book</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card p-4 mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-4">
+                        <div>
+                            <h4>Past Exam Papers & Study Materials</h4>
+                            <p class="text-secondary">Upload past exam papers, notes, textbooks, and other study resources. Tag each item with the correct category so learners can easily locate materials by level and stream.</p>
+                        </div>
+                        <div class="text-md-end">
+                            {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                                <a href="{% url 'manage-resources' %}?type=past_exam_paper" class="btn btn-outline-primary me-2">Manage Past Papers</a>
+                                <a href="/books/add/" class="btn btn-success">Upload Past Exam Paper</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-sm-4 mb-3">
+                            <div class="card border-0 bg-surface p-3 h-100">
+                                <h6 class="mb-3">Arts</h6>
+                                <ul class="mb-0 text-secondary">
+                                    <li>Form1 Arts</li>
+                                    <li>Form2 Arts</li>
+                                    <li>Form3 Arts</li>
+                                    <li>Form4 Arts</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <div class="card border-0 bg-surface p-3 h-100">
+                                <h6 class="mb-3">Commercials</h6>
+                                <ul class="mb-0 text-secondary">
+                                    <li>Form1 Commercials</li>
+                                    <li>Form2 Commercials</li>
+                                    <li>Form3 Commercials</li>
+                                    <li>Form4 Commercials</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <div class="card border-0 bg-surface p-3 h-100">
+                                <h6 class="mb-3">Sciences</h6>
+                                <ul class="mb-0 text-secondary">
+                                    <li>Form1 Sciences</li>
+                                    <li>Form2 Sciences</li>
+                                    <li>Form3 Sciences</li>
+                                    <li>Form4 Sciences</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Books & Resources</h4>
+                        {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                            <a href="{% url 'manage-resources' %}" class="btn btn-sm btn-outline-primary">Manage All</a>
+                        {% endif %}
+                    </div>
+                    <div class="book-grid mt-3">
+                        {% for book in books %}
+                            <div class="book-card p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+                                    <div>
+                                        {% if book.file %}
+                                            <a href="{% url 'view-book' book.pk %}" target="_blank" class="book-card-title">{{ book.title }}</a>
+                                            <div class="mt-2">
+                                                <a href="{% url 'view-book' book.pk %}" target="_blank" class="btn btn-sm btn-outline-primary me-1">View</a>
+                                                <a href="{% url 'download-book' book.pk %}" class="btn btn-sm btn-primary me-1">Download</a>
+                                                {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                                                    <a href="{% url 'edit-book' book.pk %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                                                    <a href="{% url 'delete-book' book.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <span class="book-card-title">{{ book.title }}</span>
+                                            {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                                                <div class="mt-2">
+                                                    <a href="{% url 'edit-book' book.pk %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                                                    <a href="{% url 'delete-book' book.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                        <p class="text-secondary mb-1 mt-1">{{ book.is_available|yesno:"Available,Loaned" }}</p>
+                                        <p class="mb-0 small text-secondary">{% for author in book.authors.all %}{{ author.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}No author specified{% endfor %}</p>
+                                    </div>
+                                    {% if book.file %}
+                                        <span class="badge bg-success text-white">Has File</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary text-white">No file</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="book-card p-3 text-secondary">No books yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4 h-100">
+                    <h4>Borrow Records</h4>
+                    <ul class="list-group list-group-flush mt-3">
+                        {% for borrowing in borrowings %}
+                            <li class="list-group-item">{{ borrowing.borrower }} borrowed {{ borrowing.book }} due {{ borrowing.due_date }}</li>
+                        {% empty %}
+                            <li class="list-group-item">No borrow records yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

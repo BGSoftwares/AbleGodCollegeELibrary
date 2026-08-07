@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AbleGod College E-Library</title>
+    {% load django_bootstrap5 static %}
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <img src="{% static 'images/school_logo.png' %}" alt="AbleGod College Crest" class="navbar-logo-img">
+                <span>Able God Digital Library</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="{% url 'past-exam-papers' %}">Past Exam Papers</a>
+                    <a class="nav-link" href="{% url 'textbooks-notes' %}">Textbooks and Notes</a>
+                    <a class="nav-link" href="{% url 'learning-materials' %}">Learning Materials</a>
+                    <a class="nav-link" href="{% url 'other-resources' %}">Other Resources</a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
+                            <a class="nav-link" href="{% url 'manage-resources' %}">Management Portal</a>
+                            <a class="nav-link" href="/books/add/">Add Resource</a>
+                        {% endif %}
+                        <a class="nav-link" href="/accounts/logout/">Logout</a>
+                    {% else %}
+                        <a class="nav-link" href="/accounts/login/">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>
