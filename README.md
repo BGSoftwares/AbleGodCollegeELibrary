@@ -1,106 +1,65 @@
 # AbleGod College E-Library
 
-A fully-featured Django-based Electronic Library System for **AbleGod College** — designed to manage books, past exam papers, learning materials, borrowing, user roles (Admin, Teacher, Librarian, Student), and more.
+A Django-based college e-library for discovering, reading, downloading and managing educational resources such as textbooks, notes and past examination papers.
 
-> **Designed & Developed by BG DevOps** — 📞 0784654328
+## Technology
 
----
+- Python / Django
+- SQLite by default (development and current low-cost deployment)
+- MySQL remains supported for future migration
+- HTML / CSS / Bootstrap
+- WhiteNoise for production static files
+- Gunicorn for production WSGI serving
 
-## Features
+## Local setup
 
-- 📚 Resource management (books, past papers, notes, learning materials)
-- 👥 Role-based access: Admin, Teacher, Librarian, Student
-- 🔐 Secure authentication and session management
-- 📥 File upload and download system
-- 📊 Dashboard with stats and quick access
-- 🗂 Category, Department, Author filtering
-- 📋 Borrowing / lending management
-- 🔔 Notification system
-
----
-
-## Tech Stack
-
-- **Backend**: Django 5.x (Python)
-- **Database**: SQLite (dev) / MySQL (production)
-- **Static files**: WhiteNoise
-- **Production server**: Gunicorn
-- **Frontend**: Bootstrap 5 + Vanilla CSS
-
----
-
-## Local Development Setup
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/BGSoftwares/AbleGodCollegeELibrary.git
-cd AbleGodCollegeELibrary
-
-# 2. Create and activate a virtual environment
+```powershell
 python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # Mac/Linux
-
-# 3. Install dependencies
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-# 4. Configure environment variables
-cp .env.example .env
-# Edit .env with your local settings
-
-# 5. Run migrations
+copy .env.example .env
 python manage.py migrate
-
-# 6. Create a superuser (admin)
 python manage.py createsuperuser
-
-# 7. Collect static files
-python manage.py collectstatic --noinput
-
-# 8. Start development server
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000 in your browser.
+Open `http://127.0.0.1:8000/`.
 
----
+## Production configuration
 
-## Production Deployment
+Set these environment variables on the hosting platform:
 
-### Environment Variables (set on your hosting platform)
-
-| Variable | Description |
-|----------|-------------|
-| `SECRET_KEY` | Long random Django secret key |
-| `DEBUG` | Set to `False` in production |
-| `ALLOWED_HOSTS` | Comma-separated list of your domain(s) |
-| `DB_ENGINE` | `django.db.backends.mysql` for MySQL |
-| `DB_NAME` | Database name |
-| `DB_USER` | Database user |
-| `DB_PASSWORD` | Database password |
-| `DB_HOST` | Database host |
-| `DB_PORT` | Database port (default 3306) |
-
-### Deploy on Railway / Render / Heroku
-
-1. Push your code to GitHub
-2. Connect the repo on your hosting platform
-3. Set the environment variables above
-4. The `Procfile` handles starting gunicorn and running migrations automatically
-
----
-
-## Default Roles
-
-Run the setup script to create default accounts:
-
-```bash
-python scripts/create_default_accounts.py
+```text
+SECRET_KEY=<strong-random-secret>
+DEBUG=False
+ALLOWED_HOSTS=<your-domain>
+CSRF_TRUSTED_ORIGINS=https://<your-domain>
+SECURE_SSL_REDIRECT=True
 ```
 
----
+SQLite remains the default database. For a free deployment, the hosting provider must provide **persistent disk storage** for `db.sqlite3` and the `media/` directory. Without persistent storage, database records and uploaded books can be lost when the service is rebuilt or redeployed.
 
-## License
+The application health endpoint is:
 
-© 2026 AbleGod College. All rights reserved.  
-**Developed by BG DevOps — 0784654328**
+```text
+/health/
+```
+
+It performs a database check and returns HTTP 200 when the application and database are healthy.
+
+## Production process
+
+The included `Procfile` uses Gunicorn and runs migrations during the release phase:
+
+```text
+web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+release: python manage.py migrate
+```
+
+## Important SQLite limitation
+
+SQLite is intentionally being kept for the current deployment because it avoids external database costs and preserves the existing application with minimal change. It is suitable for a small-to-moderate college library, but it is not the long-term choice for heavy concurrent writes or multiple application instances. When the library grows, migrate to PostgreSQL using Django migrations and a database backup rather than changing the application's business logic.
+
+## Security
+
+Never commit `.env`, real credentials, database passwords or secret keys. Configure secrets through the hosting platform.
