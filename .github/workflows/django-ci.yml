@@ -1,0 +1,56 @@
+name: Django CI
+
+on:
+  push:
+    branches: ["master", "agent/production-deployment-hardening"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Django system checks
+        env:
+          SECRET_KEY: ci-only-secret-key
+          DEBUG: "False"
+          ALLOWED_HOSTS: "127.0.0.1,localhost"
+          SECURE_SSL_REDIRECT: "False"
+        run: python manage.py check
+
+      - name: Check migrations
+        env:
+          SECRET_KEY: ci-only-secret-key
+          DEBUG: "False"
+          ALLOWED_HOSTS: "127.0.0.1,localhost"
+          SECURE_SSL_REDIRECT: "False"
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run tests
+        env:
+          SECRET_KEY: ci-only-secret-key
+          DEBUG: "False"
+          ALLOWED_HOSTS: "127.0.0.1,localhost"
+          SECURE_SSL_REDIRECT: "False"
+        run: python manage.py test
+
+      - name: Collect static files
+        env:
+          SECRET_KEY: ci-only-secret-key
+          DEBUG: "False"
+          ALLOWED_HOSTS: "127.0.0.1,localhost"
+          SECURE_SSL_REDIRECT: "False"
+        run: python manage.py collectstatic --noinput
