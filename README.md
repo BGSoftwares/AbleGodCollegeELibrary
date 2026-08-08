@@ -49,16 +49,16 @@ It performs a database check and returns HTTP 200 when the application and datab
 
 ## Production process
 
-The included `Procfile` uses Gunicorn and runs migrations during the release phase:
+The included `Procfile` uses one Gunicorn worker and runs migrations during the release phase. A single worker is intentional while SQLite is the active production database; it avoids unnecessary concurrent write processes.
 
 ```text
-web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
 release: python manage.py migrate
 ```
 
 ## Important SQLite limitation
 
-SQLite is intentionally being kept for the current deployment because it avoids external database costs and preserves the existing application with minimal change. It is suitable for a small-to-moderate college library, but it is not the long-term choice for heavy concurrent writes or multiple application instances. When the library grows, migrate to PostgreSQL using Django migrations and a database backup rather than changing the application's business logic.
+SQLite is intentionally being kept for the current deployment because it avoids external database costs and preserves the existing application with minimal change. It is suitable for a small-to-moderate college library, but it is not the long-term choice for heavy concurrent writes or multiple application instances. When the library grows, migrate to PostgreSQL using a tested backup/migration plan rather than changing the application's business logic.
 
 ## Security
 
