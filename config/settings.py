@@ -79,8 +79,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─── Database ─────────────────────────────────────────────────────────────────
-# SQLite is the default database for this deployment. The existing MySQL
-# configuration remains available through DB_ENGINE for future migration.
+# SQLite is intentionally the default for the current low-cost deployment.
+# The existing MySQL configuration remains available for a future migration.
 DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
 
 if DB_ENGINE == 'django.db.backends.sqlite3':
