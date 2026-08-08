@@ -26,9 +26,7 @@ _csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
 if _csrf_origins:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
 else:
-    CSRF_TRUSTED_ORIGINS = [
-        f"https://{h}" for h in ALLOWED_HOSTS if h not in ('127.0.0.1', 'localhost')
-    ]
+    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS if h not in ('127.0.0.1', 'localhost')]
 
 # ─── Applications ────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -87,19 +85,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # standard DATABASE_URL (recommended) or the existing DB_* variables.
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True)
-    }
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True)}
 else:
     DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
-
     if DB_ENGINE == 'django.db.backends.sqlite3':
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': str(BASE_DIR / 'db.sqlite3'),
-            }
-        }
+        DATABASES = {'default': {'ENGINE': DB_ENGINE, 'NAME': str(BASE_DIR / 'db.sqlite3')}}
     elif DB_ENGINE == 'django.db.backends.mysql':
         DATABASES = {
             'default': {
@@ -143,14 +133,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
-    'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
 }
 
-# By default, media remains on the local filesystem so existing development
-# behavior is unchanged. Set AWS_STORAGE_BUCKET_NAME in production to move
-# uploaded books, exam papers, covers and avatars to S3-compatible storage.
+# Existing local behavior is preserved. Set AWS_STORAGE_BUCKET_NAME in
+# production to store books, exam papers, covers and avatars in S3-compatible
+# object storage so uploads survive application redeployments.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -162,10 +151,6 @@ if os.getenv('AWS_STORAGE_BUCKET_NAME'):
     AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL') or None
     AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN') or None
     AWS_QUERYSTRING_AUTH = os.getenv('AWS_QUERYSTRING_AUTH', 'True').lower() == 'true'
-    AWS_DEFAULT_ACL = None
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-
     STORAGES['default'] = {
         'BACKEND': 'storages.backends.s3.S3Storage',
         'OPTIONS': {
