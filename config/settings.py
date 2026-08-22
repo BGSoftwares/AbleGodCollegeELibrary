@@ -1,12 +1,13 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-import pymysql
 from django.core.exceptions import ImproperlyConfigured
 
-pymysql.install_as_MySQLdb()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load the private environment file when present. The hosting platform can
+# provide environment variables directly; local development can use .env.
+load_dotenv('/home/BGDevopps/.ablegod.env')
 load_dotenv(BASE_DIR / '.env')
 
 # ─── Security ────────────────────────────────────────────────────────────────
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
     'dashboard',
 ]
 
-# ─── Middleware ────────────────────────────────────────────────────────────────
+# ─── Middleware ───────────────────────────────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -79,36 +80,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─── Database ─────────────────────────────────────────────────────────────────
-# SQLite is intentionally the default for the current low-cost deployment.
-# The existing MySQL configuration remains available for a future migration.
-DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
-
-if DB_ENGINE == 'django.db.backends.sqlite3':
-    DATABASES = {
-        'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': str(BASE_DIR / 'db.sqlite3'),
-            'OPTIONS': {
-                'timeout': int(os.getenv('SQLITE_TIMEOUT', '30')),
-            },
-        }
+# SQLite is intentionally used for the current deployment. It avoids an
+# expiring external PostgreSQL/MySQL service and requires no database server.
+# DB_ENGINE is deliberately not read here so a stale local .env cannot switch
+# the application back to an unavailable MySQL server.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': int(os.getenv('SQLITE_TIMEOUT', '30')),
+        },
     }
-elif DB_ENGINE == 'django.db.backends.mysql':
-    DATABASES = {
-        'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': os.getenv('DB_NAME', 'ablegod_college_library'),
-            'USER': os.getenv('DB_USER', 'root'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-            'PORT': os.getenv('DB_PORT', '3306'),
-            'OPTIONS': {'charset': 'utf8mb4'},
-        }
-    }
-else:
-    raise ImproperlyConfigured(
-        'Unsupported DB_ENGINE. Use django.db.backends.sqlite3 or django.db.backends.mysql.'
-    )
+}
 
 # ─── Password Validation ──────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
