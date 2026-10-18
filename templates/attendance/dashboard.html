@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Header Banner -->
+        <div class="hero-card p-4 p-md-5 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+                <div>
+                    <span class="badge-accent mb-2">Classroom Management</span>
+                    <h2 class="display-6 fw-bold">Class Attendance & WhatsApp Roster</h2>
+                    <p class="text-secondary mb-0">Record daily attendance by class, generate summaries, and instantly share attendance reports directly to class WhatsApp groups.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'manage-classes' %}" class="btn btn-outline-primary">
+                        🏫 Manage Classes & Students
+                    </a>
+                    <a href="{% url 'dashboard-home' %}" class="btn btn-outline-secondary">Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="text-secondary small fw-bold">TOTAL CLASSES</div>
+                    <div class="display-6 fw-bold text-primary">{{ total_classes }}</div>
+                    <div class="small text-muted">Active classes & streams</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="text-secondary small fw-bold">ENROLLED STUDENTS</div>
+                    <div class="display-6 fw-bold text-success">{{ total_students }}</div>
+                    <div class="small text-muted">Active student profiles</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="text-secondary small fw-bold">TODAY'S REGISTERS MARKED</div>
+                    <div class="display-6 fw-bold text-info">{{ today_sessions }}</div>
+                    <div class="small text-muted">Completed roll calls today</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Classes List for Quick Attendance -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Take Attendance by Class</h4>
+                        <a href="{% url 'manage-classes' %}" class="btn btn-sm btn-outline-primary">+ Add Class</a>
+                    </div>
+                    <p class="text-secondary small">Click <strong>"Mark Attendance"</strong> on any class to take today's register and share directly to WhatsApp.</p>
+
+                    <div class="row g-3 mt-1">
+                        {% for c in classes %}
+                            <div class="col-md-6">
+                                <div class="card h-100 p-3 border bg-light">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="fw-bold text-primary mb-1">{{ c.name }}</h5>
+                                        <span class="badge bg-secondary">{{ c.total_students }} Students</span>
+                                    </div>
+                                    <div class="small text-secondary mb-2">
+                                        Level: {{ c.grade_level }} {% if c.stream %}| {{ c.stream }}{% endif %}
+                                    </div>
+                                    <div class="small text-muted mb-3">
+                                        Teacher: {{ c.class_teacher.get_full_name|default:c.class_teacher.username|default:"Unassigned" }}
+                                    </div>
+                                    <div class="mt-auto d-flex gap-2">
+                                        <a href="{% url 'take-attendance' c.id %}" class="btn btn-sm btn-primary flex-grow-1">
+                                            📝 Mark Attendance
+                                        </a>
+                                        <a href="{% url 'manage-students' c.id %}" class="btn btn-sm btn-outline-secondary" title="View/Edit Roster">
+                                            👥
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12 text-center py-4 text-secondary">
+                                <p>No classes set up yet.</p>
+                                <a href="{% url 'manage-classes' %}" class="btn btn-primary btn-sm">+ Create Your First Class</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Attendance Sessions -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h4 class="fw-bold mb-3">Recent Registers & WhatsApp Links</h4>
+                    <div class="list-group list-group-flush">
+                        {% for s in recent_sessions %}
+                            <div class="list-group-item px-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong class="text-dark">{{ s.classroom.name }}</strong>
+                                    <span class="badge {% if s.attendance_percentage >= 85 %}bg-success{% elif s.attendance_percentage >= 70 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                        {{ s.attendance_percentage }}% Present
+                                    </span>
+                                </div>
+                                <div class="small text-secondary mb-2">
+                                    📅 {{ s.date|date:"D, d M Y" }} &bull; {{ s.session_type }} &bull; By {{ s.teacher.get_full_name|default:s.teacher.username|default:"Teacher" }}
+                                </div>
+                                <div class="small mb-2">
+                                    <span class="text-success fw-bold">{{ s.present_count }} Present</span> &bull;
+                                    <span class="text-danger fw-bold">{{ s.absent_count }} Absent</span>
+                                    {% if s.late_count > 0 %} &bull; <span class="text-warning fw-bold">{{ s.late_count }} Late</span>{% endif %}
+                                </div>
+                                <div>
+                                    <a href="{% url 'attendance-session-detail' s.id %}" class="btn btn-sm btn-outline-primary me-2">
+                                        View Details
+                                    </a>
+                                    <a href="{% url 'attendance-session-detail' s.id %}#whatsappSection" class="btn btn-sm btn-success">
+                                        📲 Share to WhatsApp
+                                    </a>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-4 text-secondary">
+                                <p>No attendance registers taken yet.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

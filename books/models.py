@@ -15,13 +15,15 @@ class Book(models.Model):
     page_count = models.PositiveIntegerField(null=True, blank=True)
     language = models.CharField(max_length=100, default='English')
     CONTENT_TYPE_CHOICES = [
-        ('textbook', 'Textbook / Book'),
-        ('learning_material', 'Learning Material'),
-        ('resource', 'Resource'),
+        ('learning_video', 'Learning Video / MP4 Clip'),
+        ('study_notes', 'Lesson & Study Notes'),
+        ('learning_material', 'Learning Material / Presentation'),
         ('past_exam_paper', 'Past Examination Paper'),
+        ('textbook', 'Textbook / Book'),
+        ('resource', 'Other Resource'),
     ]
     content_type = models.CharField(max_length=32, choices=CONTENT_TYPE_CHOICES, null=True, blank=True)
-    file = models.FileField(upload_to='books/files/', blank=True, null=True)
+    file = models.FileField(upload_to='books/files/', blank=True, null=True, help_text='Upload videos (MP4/WebM), notes (PDF/DOCX), or study materials directly from your device')
     authors = models.ManyToManyField(Author, related_name='books')
     publisher = models.ForeignKey(Publisher, on_delete=models.SET_NULL, null=True, blank=True, related_name='books')
     categories = models.ManyToManyField(Category, related_name='books')
@@ -37,6 +39,28 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_video(self):
+        if self.content_type == 'learning_video':
+            return True
+        if self.file and self.file.name:
+            ext = self.file.name.lower().split('.')[-1]
+            return ext in ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi']
+        return False
+
+    @property
+    def is_pdf(self):
+        if self.file and self.file.name:
+            return self.file.name.lower().endswith('.pdf')
+        return False
+
+    @property
+    def file_extension(self):
+        if self.file and self.file.name and '.' in self.file.name:
+            return self.file.name.split('.')[-1].upper()
+        return 'FILE'
+
 
 
 class Review(models.Model):

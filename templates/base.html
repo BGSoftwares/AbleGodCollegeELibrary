@@ -10,30 +10,59 @@
     {% bootstrap_javascript %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
                 <img src="{% static 'images/school_logo.png' %}" alt="AbleGod College Crest" class="navbar-logo-img">
-                <span>Able God Digital Library</span>
+                <span class="fw-bold">Able God Digital Library</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="{% url 'past-exam-papers' %}">Past Exam Papers</a>
-                    <a class="nav-link" href="{% url 'textbooks-notes' %}">Textbooks and Notes</a>
+                <div class="navbar-nav ms-auto align-items-lg-center">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    {% if user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'dashboard-home' %}">Dashboard</a>
+                    {% endif %}
+                    <a class="nav-link" href="{% url 'past-exam-papers' %}">Past Papers</a>
+                    <a class="nav-link" href="{% url 'textbooks-notes' %}">Textbooks & Notes</a>
                     <a class="nav-link" href="{% url 'learning-materials' %}">Learning Materials</a>
-                    <a class="nav-link" href="{% url 'other-resources' %}">Other Resources</a>
+
                     {% if user.is_authenticated %}
                         {% if user.is_superuser or user.is_staff or user.is_staff_member or user.is_teacher %}
-                            <a class="nav-link" href="{% url 'manage-resources' %}">Management Portal</a>
-                            <a class="nav-link" href="/books/add/">Add Resource</a>
+                            <div class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-warning fw-bold" href="#" id="staffDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ⚙️ Staff Tools
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="staffDropdown">
+                                    <li><a class="dropdown-item fw-bold text-success" href="{% url 'attendance-dashboard' %}">📋 Class Attendance & WhatsApp</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'manage-resources' %}">📚 Resource Manager</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'add-book' %}">📁 Upload from Device</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'manage-gallery' %}">🖼️ Gallery Manager</a></li>
+                                    {% if user.is_superuser or user.is_staff %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item fw-bold text-primary" href="{% url 'manage-teachers' %}">👥 Teachers & Passwords</a></li>
+                                        <li><a class="dropdown-item" href="/admin/" target="_blank">🛡️ Django Admin</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
                         {% endif %}
-                        <a class="nav-link" href="/accounts/logout/">Logout</a>
+
+                        <div class="nav-item dropdown ms-lg-2">
+                            <a class="btn btn-outline-light btn-sm dropdown-toggle mt-2 mt-lg-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 {{ user.get_full_name|default:user.username }}
+                                {% if user.must_change_password %}<span class="badge bg-warning text-dark ms-1">!</span>{% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                <li class="dropdown-header small text-muted">Role: {% if user.is_teacher %}Teacher{% elif user.is_superuser %}Admin{% else %}User{% endif %}</li>
+                                <li><a class="dropdown-item" href="{% url 'change-password' %}">🔑 Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">🚪 Logout</a></li>
+                            </ul>
+                        </div>
                     {% else %}
-                        <a class="nav-link" href="/accounts/login/">Login</a>
+                        <a class="btn btn-outline-light btn-sm ms-lg-3 mt-2 mt-lg-0" href="{% url 'login' %}">Login</a>
                     {% endif %}
                 </div>
             </div>

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Resource Header Banner -->
+        <div class="hero-card p-4 p-md-5 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+                <div>
+                    <span class="badge-accent mb-2">{{ book.get_content_type_display|default:"Learning Resource" }}</span>
+                    <h2 class="display-6 fw-bold mb-2">{{ book.title }}</h2>
+                    <p class="text-secondary mb-0">
+                        Uploaded by: <strong>{{ book.uploaded_by.get_full_name|default:book.uploaded_by.username|default:"Faculty" }}</strong> &bull;
+                        Format: <span class="badge bg-secondary">{{ book.file_extension }}</span> &bull;
+                        Language: {{ book.language }} &bull;
+                        Added: {{ book.created_at|date:"d M Y" }}
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'download-book' book.pk %}" class="btn btn-primary fw-bold">
+                        📥 Download File
+                    </a>
+                    <a href="{% url 'dashboard-home' %}" class="btn btn-outline-secondary">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Media Player / Document Viewer Area -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm p-4">
+                    {% if book.is_video %}
+                        <!-- HTML5 Video Player -->
+                        <div class="ratio ratio-16x9 bg-black rounded overflow-hidden shadow-sm mb-3">
+                            <video controls autoplay class="w-100 h-100" style="object-fit: contain;">
+                                <source src="{{ book.file.url }}" type="video/mp4">
+                                <source src="{{ book.file.url }}" type="video/webm">
+                                Your browser does not support HTML5 video streaming.
+                            </video>
+                        </div>
+                        <div class="alert alert-info py-2 px-3 small d-flex justify-content-between align-items-center">
+                            <span>🎥 <strong>Learning Video:</strong> Streamed directly from AbleGod College media server.</span>
+                            <a href="{{ book.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open Fullscreen</a>
+                        </div>
+                    {% elif book.is_pdf %}
+                        <!-- PDF Embed / Viewer -->
+                        <div class="rounded overflow-hidden shadow-sm mb-3" style="height: 650px;">
+                            <iframe src="{{ book.file.url }}#toolbar=1" class="w-100 h-100 border-0" title="{{ book.title }}"></iframe>
+                        </div>
+                        <div class="text-end">
+                            <a href="{{ book.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Open PDF in New Window</a>
+                        </div>
+                    {% else %}
+                        <!-- Other file types (DOCX, PPTX, ZIP, etc.) -->
+                        <div class="text-center py-5 bg-light rounded mb-3">
+                            <div class="display-1 text-primary mb-3">📄</div>
+                            <h4 class="fw-bold">{{ book.title }}</h4>
+                            <p class="text-secondary mb-3">Document type: <strong>{{ book.file_extension }}</strong></p>
+                            <a href="{% url 'download-book' book.pk %}" class="btn btn-primary btn-lg px-4">
+                                📥 Download & Open on Your Device
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if book.description %}
+                        <div class="mt-4 pt-3 border-top">
+                            <h5 class="fw-bold mb-2">Resource Description</h5>
+                            <p class="text-secondary mb-0" style="white-space: pre-line;">{{ book.description }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Resource Metadata & Notes Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold mb-3">Resource Information</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><strong>Category:</strong> {{ book.get_content_type_display|default:"General Resource" }}</li>
+                        <li class="mb-2"><strong>Document Code:</strong> <code>{{ book.isbn }}</code></li>
+                        {% if book.publication_year %}<li class="mb-2"><strong>Academic Year:</strong> {{ book.publication_year }}</li>{% endif %}
+                        {% if book.edition %}<li class="mb-2"><strong>Edition / Version:</strong> {{ book.edition }}</li>{% endif %}
+                        <li class="mb-2"><strong>Availability:</strong> {{ book.is_available|yesno:"Available for Learners,Restricted" }}</li>
+                    </ul>
+
+                    {% if user.is_authenticated and user.is_superuser or user.is_staff or user.is_teacher %}
+                        <div class="mt-4 pt-3 border-top d-flex gap-2">
+                            <a href="{% url 'edit-book' book.pk %}" class="btn btn-outline-secondary btn-sm flex-grow-1">✏️ Edit</a>
+                            <a href="{% url 'delete-book' book.pk %}" class="btn btn-outline-danger btn-sm">🗑️ Delete</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Study Notes / Remarks Form -->
+                {% if user.is_authenticated %}
+                    <div class="card border-0 shadow-sm p-4">
+                        <h5 class="fw-bold mb-2">Personal Study Notes</h5>
+                        <p class="small text-secondary mb-3">Save notes about this resource for your quick revision.</p>
+                        <form method="post" action="{% url 'save-note' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="book_id" value="{{ book.id }}">
+                            <div class="mb-3">
+                                <textarea name="content" class="form-control form-control-sm" rows="4" placeholder="Write key takeaways, formula references, or question points..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                💾 Save Note
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

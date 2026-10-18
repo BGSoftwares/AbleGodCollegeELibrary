@@ -25,6 +25,9 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_staff_member = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
+    must_change_password = models.BooleanField(default=False, help_text=_('User must change password on next login'))
+    employee_id = models.CharField(max_length=50, blank=True)
+    department_name = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

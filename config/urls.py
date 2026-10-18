@@ -13,6 +13,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('books/', include('books.urls')),
     path('borrowings/', include('borrowing.urls')),
+    path('attendance/', include('attendance.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler403 = 'config.views.permission_denied_view'

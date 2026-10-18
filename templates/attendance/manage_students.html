@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Header -->
+        <div class="hero-card p-4 p-md-5 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+                <div>
+                    <span class="badge-accent mb-2">Class Roster</span>
+                    <h2 class="display-6 fw-bold">Students in {{ classroom.name }}</h2>
+                    <p class="text-secondary mb-0">Total Enrolled: <strong>{{ students.count }} Students</strong> &bull; Teacher: <strong>{{ classroom.class_teacher.get_full_name|default:classroom.class_teacher.username|default:"Unassigned" }}</strong></p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'take-attendance' classroom.id %}" class="btn btn-success fw-bold">
+                        📝 Mark Class Attendance
+                    </a>
+                    <a href="{% url 'manage-classes' %}" class="btn btn-outline-primary">All Classes</a>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row g-4">
+            <!-- Add Student Form -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 20px;">
+                    <h4 class="fw-bold mb-3">+ Add Student to Class</h4>
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Last Name *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Admission / Roll No. *</label>
+                            {{ form.admission_number }}
+                            {% if form.admission_number.errors %}<div class="text-danger small">{{ form.admission_number.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Gender</label>
+                            {{ form.gender }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Assigned Class</label>
+                            {{ form.classroom }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Parent / Guardian Name</label>
+                            {{ form.parent_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Parent Phone (for WhatsApp)</label>
+                            {{ form.parent_phone }}
+                            <div class="form-text small">e.g. +263 77 123 4567</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            Add Student
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Student List Table -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm p-4">
+                    <h4 class="fw-bold mb-3">Enrolled Students ({{ students.count }})</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student Name</th>
+                                    <th>Adm Number</th>
+                                    <th>Gender</th>
+                                    <th>Parent Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in students %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td><strong>{{ s.full_name }}</strong></td>
+                                        <td><code>{{ s.admission_number }}</code></td>
+                                        <td>{{ s.gender|default:"-" }}</td>
+                                        <td>
+                                            {% if s.parent_phone %}
+                                                <div>{{ s.parent_name|default:"Parent" }}</div>
+                                                <small class="text-muted">{{ s.parent_phone }}</small>
+                                            {% else %}
+                                                <span class="text-secondary small">No phone</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-secondary">
+                                            No students added to this class yet. Use the form on the left.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

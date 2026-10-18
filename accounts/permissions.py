@@ -34,3 +34,9 @@ teacher_or_librarian_required = role_required(
     lambda u: bool(getattr(u, 'is_teacher', False) or getattr(u, 'is_staff_member', False) or getattr(u, 'is_staff', False) or getattr(u, 'is_superuser', False)),
     'You must be a teacher or librarian to perform this action.'
 )
+
+admin_required = role_required(
+    lambda u: bool(getattr(u, 'is_superuser', False) or getattr(u, 'is_staff', False)),
+    'Administrators only.'
+)
+

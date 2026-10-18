@@ -69,6 +69,8 @@ def manage_resources(request):
     past_exam_count = Book.objects.filter(content_type='past_exam_paper').count()
     learning_material_count = Book.objects.filter(content_type='learning_material').count()
     resource_count = Book.objects.filter(content_type='resource').count()
+    video_count = Book.objects.filter(Q(content_type='learning_video') | Q(file__iendswith='.mp4') | Q(file__iendswith='.webm')).count()
+    notes_count = Book.objects.filter(content_type='study_notes').count()
 
     context = {
         'books': books_qs,
@@ -79,6 +81,8 @@ def manage_resources(request):
         'past_exam_count': past_exam_count,
         'learning_material_count': learning_material_count,
         'resource_count': resource_count,
+        'video_count': video_count,
+        'notes_count': notes_count,
     }
     return render(request, 'books/manage_resources.html', context)
 
@@ -171,15 +175,21 @@ def view_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if not book.file:
         raise Http404('Resource file not found.')
-    file_path = getattr(book.file, 'path', book.file.name)
-    mime_type, _ = mimetypes.guess_type(file_path)
-    return FileResponse(book.file.open('rb'), as_attachment=False, content_type=mime_type or 'application/octet-stream')
+
+    if request.GET.get('raw'):
+        file_path = getattr(book.file, 'path', book.file.name)
+        mime_type, _ = mimetypes.guess_type(file_path)
+        return FileResponse(book.file.open('rb'), as_attachment=False, content_type=mime_type or 'application/octet-stream')
+
+    return render(request, 'books/view_resource.html', {'book': book})
 
 
-@student_required
 def save_note(request):
     if request.method != 'POST':
         return HttpResponseForbidden('Invalid request method.')
+
+    if not request.user.is_authenticated:
+        return redirect('login')
 
     book_id = request.POST.get('book_id')
     content = request.POST.get('content', '').strip()
@@ -189,3 +199,4 @@ def save_note(request):
     book = get_object_or_404(Book, pk=book_id)
     SavedNote.objects.create(book=book, user=request.user, content=content)
     return redirect(request.META.get('HTTP_REFERER', '/'))
+

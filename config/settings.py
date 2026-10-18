@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     "borrowing",
     "notifications",
     "dashboard",
+    "attendance",
 ]
 
 

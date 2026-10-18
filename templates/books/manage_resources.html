@@ -56,11 +56,13 @@
             <form method="get" class="row g-3 align-items-center">
                 <div class="col-lg-7">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="?type=all{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">All Resources</a>
-                        <a href="?type=past_exam_paper{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'past_exam_paper' %}btn-primary{% else %}btn-outline-primary{% endif %}">Past Exam Papers</a>
-                        <a href="?type=textbook{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'textbook' %}btn-primary{% else %}btn-outline-primary{% endif %}">Textbooks & Notes</a>
-                        <a href="?type=learning_material{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'learning_material' %}btn-primary{% else %}btn-outline-primary{% endif %}">Learning Materials</a>
-                        <a href="?type=resource{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'resource' %}btn-primary{% else %}btn-outline-primary{% endif %}">Other Resources</a>
+                        <a href="?type=all{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">All ({{ total_count }})</a>
+                        <a href="?type=learning_video{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'learning_video' %}btn-danger{% else %}btn-outline-danger{% endif %}">🎥 Videos ({{ video_count }})</a>
+                        <a href="?type=study_notes{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'study_notes' %}btn-success{% else %}btn-outline-success{% endif %}">📄 Notes ({{ notes_count }})</a>
+                        <a href="?type=past_exam_paper{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'past_exam_paper' %}btn-primary{% else %}btn-outline-primary{% endif %}">Past Papers ({{ past_exam_count }})</a>
+                        <a href="?type=textbook{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'textbook' %}btn-primary{% else %}btn-outline-primary{% endif %}">Textbooks ({{ textbook_count }})</a>
+                        <a href="?type=learning_material{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'learning_material' %}btn-primary{% else %}btn-outline-primary{% endif %}">Materials ({{ learning_material_count }})</a>
+                        <a href="?type=resource{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if filter_type == 'resource' %}btn-primary{% else %}btn-outline-primary{% endif %}">Other ({{ resource_count }})</a>
                     </div>
                 </div>
                 <div class="col-lg-5">
