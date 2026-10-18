@@ -57,6 +57,36 @@ class Student(models.Model):
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
+    def save(self, *args, **kwargs):
+        if not self.admission_number or not self.admission_number.strip():
+            self.admission_number = generate_next_admission_number()
+        super().save(*args, **kwargs)
+
+
+def generate_next_admission_number():
+    import re
+    from datetime import datetime
+    year = datetime.now().year
+    prefix = f"AGC-{year}-"
+    existing = Student.objects.filter(admission_number__startswith=prefix).values_list('admission_number', flat=True)
+    max_num = 0
+    for adm in existing:
+        m = re.search(r'(\d+)$', adm or '')
+        if m:
+            try:
+                max_num = max(max_num, int(m.group(1)))
+            except ValueError:
+                pass
+    if max_num == 0:
+        for adm in Student.objects.values_list('admission_number', flat=True):
+            m = re.search(r'(\d+)$', adm or '')
+            if m:
+                try:
+                    max_num = max(max_num, int(m.group(1)))
+                except ValueError:
+                    pass
+    return f"{prefix}{max_num + 1:03d}"
+
 
 class AttendanceSession(models.Model):
     SESSION_TYPE_CHOICES = [
