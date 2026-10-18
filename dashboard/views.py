@@ -13,7 +13,7 @@ from accounts.permissions import admin_required, teacher_or_librarian_required
 @login_required
 def dashboard(request):
     books = Book.objects.select_related('publisher', 'uploaded_by').prefetch_related('authors', 'categories').all().order_by('-created_at')
-    borrowings = Borrowing.objects.select_related('borrower', 'book').all().order_by('-borrow_date')[:10]
+    borrowings = Borrowing.objects.select_related('borrower', 'book').all().order_by('-borrowed_at')[:10]
     
     # Gallery items for the dashboard (photos and videos)
     gallery_items = GalleryItem.objects.filter(is_featured=True).order_by('-created_at')[:12]

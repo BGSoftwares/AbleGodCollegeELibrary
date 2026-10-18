@@ -41,6 +41,36 @@ class User(AbstractUser):
     def __str__(self):
         return self.get_full_name() or self.username
 
+    def save(self, *args, **kwargs):
+        if (self.is_teacher or self.is_staff_member) and (not self.employee_id or not self.employee_id.strip()):
+            self.employee_id = generate_next_employee_id()
+        super().save(*args, **kwargs)
+
+
+def generate_next_employee_id():
+    import re
+    from datetime import datetime
+    year = datetime.now().year
+    prefix = f"AGC-EMP-"
+    existing = User.objects.filter(employee_id__startswith=prefix).values_list('employee_id', flat=True)
+    max_num = 0
+    for emp in existing:
+        m = re.search(r'(\d+)$', emp or '')
+        if m:
+            try:
+                max_num = max(max_num, int(m.group(1)))
+            except ValueError:
+                pass
+    if max_num == 0:
+        for emp in User.objects.values_list('employee_id', flat=True):
+            m = re.search(r'(\d+)$', emp or '')
+            if m:
+                try:
+                    max_num = max(max_num, int(m.group(1)))
+                except ValueError:
+                    pass
+    return f"{prefix}{max_num + 1:03d}"
+
 
 class ActivityLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activity_logs')

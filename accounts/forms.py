@@ -36,6 +36,10 @@ class TeacherCreationForm(forms.ModelForm):
         help_text='Initial temporary password for teacher. Teacher will be prompted to change it upon login.',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Default password e.g. Teacher@2026'})
     )
+    employee_id = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Auto-generated next ID if blank (e.g. AGC-EMP-001)'})
+    )
 
     class Meta:
         model = User
@@ -46,9 +50,14 @@ class TeacherCreationForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'name@ablegodcollege.ac.zw'}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+263 77 123 4567'}),
-            'employee_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. TCH-042'}),
             'department_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Sciences / Mathematics'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and not self.initial.get('employee_id'):
+            from .models import generate_next_employee_id
+            self.initial['employee_id'] = generate_next_employee_id()
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
